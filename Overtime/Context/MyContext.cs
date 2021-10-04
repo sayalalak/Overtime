@@ -18,11 +18,11 @@ namespace Overtime.Context
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<AccountRole>()
-                .HasKey(ar => new { ar.Id, ar.RoleId });
+                .HasKey(ar => new { ar.AccountId, ar.RoleId });
             modelBuilder.Entity<AccountRole>()
                 .HasOne(ar => ar.Account)
                 .WithMany(a => a.AccountRoles)
-                .HasForeignKey(ar => ar.Id);
+                .HasForeignKey(ar => ar.AccountId);
             modelBuilder.Entity<AccountRole>()
                 .HasOne(ar => ar.Role)
                 .WithMany(r => r.AccountRoles)
@@ -30,6 +30,26 @@ namespace Overtime.Context
             modelBuilder.Entity<Division>()
                 .HasOne(d => d.Department)
                 .WithMany(dp => dp.Divisions);
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Division)
+                .WithMany(d => d.Users);
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Account)
+                .WithOne(a => a.User)
+                .HasForeignKey<Account>(a => a.Id);
+            modelBuilder.Entity<UserRequest>()
+                .HasKey(ur => new { ur.UserId, ur.RequestId });
+            modelBuilder.Entity<UserRequest>()
+                .HasOne(u => u.User)
+                .WithMany(ur => ur.UserRequests)
+                .HasForeignKey(ur => ur.UserId);
+            modelBuilder.Entity<UserRequest>()
+                .HasOne(r => r.Request)
+                .WithMany(ur => ur.UserRequests)
+                .HasForeignKey(ur => ur.RequestId);
+            modelBuilder.Entity<Request>()
+                .Property(r => r.SalaryOvertime)
+                .HasColumnType("decimal(18,2)");
         }
 
         public DbSet<Account> Accounts { get; set; }
@@ -37,5 +57,8 @@ namespace Overtime.Context
         public DbSet<AccountRole> AccountRoles { get; set; }
         public DbSet<Division> Divisions { get; set; }
         public DbSet<Department> Departments { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserRequest> UserRequests { get; set; }
+        public DbSet<Request> Requests { get; set; }
     }
 }
